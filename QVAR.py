@@ -1,6 +1,6 @@
 from qiskit import ClassicalRegister, QuantumRegister, QuantumCircuit, execute, BasicAer
 from qiskit.algorithms import EstimationProblem
-from qiskit.algorithms import AmplitudeEstimation
+from qiskit.algorithms import AmplitudeEstimation, FasterAmplitudeEstimation
 from qiskit.primitives import Sampler
 
 
