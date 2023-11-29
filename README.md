@@ -5,7 +5,7 @@ The QVAR quantum subroutine employs a gate-based circuit logarithmic in depth to
 
 ## How to use it
 
-The QVAR method in `QVAR.py` is responsible for creating and executing the quantum circuit for computing the variance of a set of values stored in the quantum superposition. To create the initial superposition of values of which you want to compute the variance, QVAR accepts a parameter `U`, which represents the unitary for creating the state of interest, and a parameter `var_index` for indexing the target values in the superposition.
+The QVAR method in `qvar.py` is responsible for creating and executing the quantum circuit for computing the variance of a set of values stored in the quantum superposition. To create the initial superposition of values of which you want to compute the variance, QVAR accepts a parameter `U`, which represents the unitary for creating the state of interest, and a parameter `var_index` for indexing the target values in the superposition.
 
 According to the parameter `version`, you can run the QVAR subroutine in the following ways:
 
