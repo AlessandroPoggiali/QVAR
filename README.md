@@ -25,5 +25,3 @@ To run a simple demostration of the QVAR subroutine, follow these steps:
 
 The `test.py` file contains code that will run the HQFS algorithm on both synthetic and real datasets. By running this file, you will be able to see how the algorithm performs on different types of data. The output of the algorithm will be displayed in the terminal window.
 
-Note that this is a simple demonstration, and the algorithm's performance may vary depending on the data being used. If you are interested in using the HQFS algorithm for your own data analysis, you may need to modify the code to suit your specific needs.
-
