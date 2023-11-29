@@ -23,5 +23,5 @@ To run a simple demostration of the QVAR subroutine, follow these steps:
 * Clone this repo with `git clone https://github.com/AlessandroPoggiali/QVAR.git`
 * Navigate to the QVAR directory and run the command `python3 test.py`
 
-The `test.py` file contains code that will run the HQFS algorithm on both synthetic and real datasets. By running this file, you will be able to see how the algorithm performs on different types of data. The output of the algorithm will be displayed in the terminal window.
+The `test.py` file contains code that will run the QVAR subroutine on a two-gates input circuit U. 
 
