@@ -17,7 +17,8 @@ from qiskit.primitives import Sampler
 # eval_qbits (optional)           : number of additional qubits (AE)
 # shots (optional)                : number of shots (SHOTS)
 # normalization_factor (optional) : multiplicative constant to obtain the final value
-def QVAR(U, var_index=None, version='FAE', delta=0.0001, max_iter=5, eval_qbits=5, shots=8192, normalization_factor=None):
+# postprocessing (optional)       : if True, return the MLE postprocessed value (only valid for AE)
+def QVAR(U, var_index=None, version='FAE', delta=0.0001, max_iter=5, eval_qbits=5, shots=8192, normalization_factor=None, postprocessing=False):
 
     if var_index == None:
         var_index = [x for x in range(U.num_qubits)]
@@ -86,7 +87,10 @@ def QVAR(U, var_index=None, version='FAE', delta=0.0001, max_iter=5, eval_qbits=
         )
         ae_result = ae.estimate(problem)
 
-        var = ae_result.mle
+        if postprocessing:
+            var = ae_result.mle
+        else:
+            var = ae_result.estimation
         
     elif version == 'FAE':
         sampler = Sampler()
