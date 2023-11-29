@@ -8,8 +8,8 @@ from qiskit.primitives import Sampler
 # var_index: list of qubit indices of which we want to compute the variance
 # version: method for estimating the variance
 #
-#    'FAE'    (default) Faster Amplitude Estimation
 #    'AE'     Amplitude Estimation
+#    'FAE'    (default) Faster Amplitude Estimation
 #    'SHOTS'  measurements with multiple circuit execution
 #
 # delta (optional)                : target accuracy (FAE)
