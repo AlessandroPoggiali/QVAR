@@ -1,6 +1,6 @@
 import numpy as np
 from qiskit import QuantumCircuit, execute, Aer
-from QVAR import QVAR
+from qvar import QVAR
 
 def get_statevector(circuit):
     backend = Aer.get_backend('statevector_simulator')
