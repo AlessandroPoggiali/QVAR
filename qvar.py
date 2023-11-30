@@ -130,4 +130,15 @@ def QVAR(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_iter
     tot_hadamard = 2 + i_qbits + n_h_gates
     norm_factor = 2**tot_hadamard/2**i_qbits
 
+<<<<<<< HEAD:QVAR.py
     return var*norm_factor
+=======
+    if normalization_factor is not None:
+        var = var*normalization_factor
+    else:    
+        n_hadamard = 2+i_qbits
+        norm_factor = 2**n_hadamard/2**i_qbits
+        var = var*norm_factor
+
+    return var
+>>>>>>> 55397dd713d156f6780e2c1bfebcbab349fe96f2:qvar.py

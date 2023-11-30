@@ -5,7 +5,7 @@ The QVAR quantum subroutine employs a gate-based circuit logarithmic in depth to
 
 ## How to use it
 
-The QVAR method in `QVAR.py` is responsible for creating and executing the quantum circuit for computing the variance of a set of values stored in the quantum superposition. To create the initial superposition of values of which you want to compute the variance, QVAR accepts a parameter `U`, which represents the unitary for creating the state of interest, and a parameter `var_index` for indexing the target values in the superposition.
+The QVAR method in `qvar.py` is responsible for creating and executing the quantum circuit for computing the variance of a set of values stored in the quantum superposition. To create the initial superposition of values of which you want to compute the variance, QVAR accepts a parameter `U`, which represents the unitary for creating the state of interest, and a parameter `var_index` for indexing the target values in the superposition.
 
 According to the parameter `version`, you can run the QVAR subroutine in the following ways:
 
@@ -23,7 +23,5 @@ To run a simple demostration of the QVAR subroutine, follow these steps:
 * Clone this repo with `git clone https://github.com/AlessandroPoggiali/QVAR.git`
 * Navigate to the QVAR directory and run the command `python3 test.py`
 
-The `test.py` file contains code that will run the HQFS algorithm on both synthetic and real datasets. By running this file, you will be able to see how the algorithm performs on different types of data. The output of the algorithm will be displayed in the terminal window.
-
-Note that this is a simple demonstration, and the algorithm's performance may vary depending on the data being used. If you are interested in using the HQFS algorithm for your own data analysis, you may need to modify the code to suit your specific needs.
+The `test.py` file contains code that will run the QVAR subroutine on a two-gates input circuit U. 
 
