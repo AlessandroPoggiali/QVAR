@@ -23,5 +23,5 @@ To run a simple demostration of the QVAR subroutine, follow these steps:
 * Clone this repo with `git clone https://github.com/AlessandroPoggiali/QVAR.git`
 * Navigate to the QVAR directory and run the command `python3 test.py`
 
-The `test.py` file contains code that will run the QVAR subroutine on a two-gates input circuit U. 
+The `test.py` file contains code that will run two demonstrations of the QVAR subroutine: the first one will compute the variance of the state vector of a random unitary, while the second one will compute the variance of a set of real values encoded through the FF-QRAM algorithm. The MSE with respect to the classical variance over 5 executions will appear on the terminal.
 
