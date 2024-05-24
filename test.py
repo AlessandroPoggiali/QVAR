@@ -81,9 +81,6 @@ def test_ffqram(N):
 
 if __name__ == "__main__":
 
-    
-    
-
     print("\n RANDOM UNITARY TEST \n")
     test_random_U(2)
 
