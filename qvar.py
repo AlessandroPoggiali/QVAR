@@ -29,61 +29,53 @@ def QVAR(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_iter
         var_index = [x for x in range(U.num_qubits)]
     
     i_qbits = len(var_index)
-    q_qbits = e_qbits = i_qbits
+    e_qbits = i_qbits
     u_qbits = U.num_qubits
 
     a = QuantumRegister(1,'a')
     e = QuantumRegister(e_qbits,'e')
-    q = QuantumRegister(q_qbits,'q')
     u = QuantumRegister(u_qbits, 'u')
 
     if version == 'SHOTS':
         ca = ClassicalRegister(1,'ca')
-        cq = ClassicalRegister(q_qbits,'cq')
         ce = ClassicalRegister(e_qbits,'ce')
         if ps_index is not None:
             cps = ClassicalRegister(len(ps_index), 'cps')
-            qc = QuantumCircuit(a, e, q, u, ca, cq, ce, cps)
+            qc = QuantumCircuit(a, e, u, ca, ce, cps)
         else:
-            qc = QuantumCircuit(a, e, q, u, ca, cq, ce)
+            qc = QuantumCircuit(a, e, u, ca, ce)
     
     else:
-        qc = QuantumCircuit(a, e, q, u)
+        qc = QuantumCircuit(a, e, u)
 
-    qc.append(U.to_gate(), list(range(1+e_qbits+q_qbits, qc.num_qubits)))    
+    qc.append(U.to_gate(), list(range(1+e_qbits, qc.num_qubits)))    
     
     qc.h(a)
-    qc.cx(a,e)
-    qc.x(e)
 
     for t in range(i_qbits):
-        qc.cswap(a,q[t],u[var_index[t]])
+        qc.cswap(a,e[t],u[var_index[t]])
 
+    qc.ch(a,e)
     for t in range(i_qbits):
         qc.ch(a,u[var_index[t]])
         
-    qc.ch(a,e)
+    qc.x(e)    
     qc.h(a)
 
-    qc.h(q)
-
-    qc.x(q)
-    
     if ps_index is None:
-        objective_qubits = [x for x in range(1+e_qbits+q_qbits)]
+        objective_qubits = [x for x in range(1+e_qbits)]
     else:
-        objective_qubits = [x for x in range(1+e_qbits+q_qbits)]+[qc.num_qubits-u_qbits + x for x in ps_index]
+        objective_qubits = [x for x in range(1+e_qbits)]+[qc.num_qubits-u_qbits + x for x in ps_index]
 
     if version == 'SHOTS':
         qc.measure(a, ca) 
-        qc.measure(q, cq)
         qc.measure(e, ce)
         
         if ps_index is not None:
             qc.measure(u[ps_index], cps)
-            target_conf = '1'*len(ps_index) + ' ' + '1'*e_qbits + ' ' + '1'*q_qbits + ' 1' 
+            target_conf = '1'*len(ps_index) + ' ' + '1'*e_qbits + ' 1' 
         else:
-            target_conf = '1'*e_qbits + ' ' + '1'*q_qbits + ' 1'
+            target_conf = '1'*e_qbits + ' 1'
 
         backend = BasicAer.get_backend('qasm_simulator')
         counts = execute(qc, backend, shots=shots).result().get_counts(qc)
@@ -127,7 +119,7 @@ def QVAR(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_iter
         var = fae_result.estimation
         
     
-    tot_hadamard = 2 + i_qbits + n_h_gates
+    tot_hadamard = 2 + n_h_gates
     norm_factor = 2**tot_hadamard/2**i_qbits
 
     return var*norm_factor
