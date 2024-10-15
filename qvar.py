@@ -64,8 +64,10 @@ def QVAR_old(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_
     else:
         qc = QuantumCircuit(a, e, q, u)
 
-    qc.append(U.to_gate(), list(range(1+e_qbits+q_qbits, qc.num_qubits)))    
-    
+    #qc.append(U.to_gate(), list(range(1+e_qbits+q_qbits, qc.num_qubits)))    
+    st_ff = Statevector.from_instruction(U)
+    qc.append(StatePreparation(st_ff.data), list(range(1+e_qbits+q_qbits, qc.num_qubits)))
+
     qc.h(a)
     qc.cx(a,e)
     qc.x(e)
@@ -189,8 +191,9 @@ def QVAR(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_iter
     else:
         qc = QuantumCircuit(a, e, u)
     
-    qc.append(U.to_gate(), list(range(1+e_qbits, qc.num_qubits)))    
-    
+    #qc.append(U.to_gate(), list(range(1+e_qbits, qc.num_qubits)))       
+    st_ff = Statevector.from_instruction(U)
+    qc.append(StatePreparation(st_ff.data), list(range(1+e_qbits, qc.num_qubits)))
     qc.h(a)
 
     for t in range(i_qbits):

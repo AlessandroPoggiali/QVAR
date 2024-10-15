@@ -77,20 +77,14 @@ def test_ffqram(N):
     print("MSE: " + str(np.mean(differences)))
 
 def test_noise():
-    '''
-    noisy_instance = Fake20QV1()
-    noise_model = NoiseModel.from_backend(noisy_instance)
-    coupling_map = noisy_instance.configuration().coupling_map
-    basis_gates = noise_model.basis_gates
 
-    backend = AerSimulator(noise_model=noise_model, coupling_map=coupling_map, basis_gates=basis_gates)
-    '''
-        
-    N_list = [2,4,8,16,32]
+    N_list = [2,4,8,16,32,64]
     trial = 10
 
     mae_qold = []
     mae_qnew = []
+    mse_qold = []
+    mse_qnew = []
 
     for N in N_list:
         print("N = " + str(N))
@@ -98,11 +92,13 @@ def test_noise():
         q_old = []
         q_new = []
         
+        n = math.ceil(math.log2(N))
+        backend = GenericBackendV2(3*n + 2)
         #print("Classical - QVAR_old - QVAR_new")
         for i in range(trial):
             np.random.seed(123*i)
             vector = np.random.uniform(-1,1, N)
-            n = math.ceil(math.log2(N))
+            
         
             r = QuantumRegister(1, 'r') 
             i = QuantumRegister(n, 'i')  
@@ -115,11 +111,8 @@ def test_noise():
                 _register_switcher(U, index, i)
                 U.mcry(np.arcsin(val)*2, i[0:], r) 
                 _register_switcher(U, index, i)
-            
-            n = int(np.log2(N)) 
-            backend = GenericBackendV2(3*n + 2)
+                       
             q_var_old = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=backend)
-            backend = GenericBackendV2(2*n + 2)
             q_var_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=backend)
             classical = np.var(vector)
             #print(str(classical)+ " - " + str(q_var_old) + " - " + str(q_var_new))
@@ -134,11 +127,24 @@ def test_noise():
         mae_qold.append(mae_old)
         mae_qnew.append(mae_new)
 
+        mse_old = np.mean([(x-y)**2 for x,y in zip(q_old, cl)])
+        mse_new = np.mean([(x-y)**2 for x,y in zip(q_new, cl)])
+        print("MSE QVAR_old = " + str(mse_old))
+        print("MSE QVAR_new = " + str(mse_new))
+        mse_qold.append(mse_old)
+        mse_qnew.append(mse_new)
+
     plt.scatter(N_list, mae_qold, label="MAE_QVAR_old")
     plt.scatter(N_list, mae_qnew, label="MAE_QVAR_new")
     plt.xticks(N_list)
     plt.legend()
-    plt.savefig("results.png")
+    plt.savefig("MAE.png")
+    fig2, ax2 = plt.subplots()
+    plt.scatter(N_list, mse_qold, label="MSE_QVAR_old")
+    plt.scatter(N_list, mse_qnew, label="MSE_QVAR_new")
+    plt.xticks(N_list)
+    plt.legend()
+    plt.savefig("MSE.png")
 
 if __name__ == "__main__":
 
