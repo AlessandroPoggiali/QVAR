@@ -4,6 +4,7 @@ from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.providers.fake_provider import *
 from qiskit_aer.noise import NoiseModel
 from qiskit_aer import AerSimulator
+from qiskit.quantum_info import Statevector, state_fidelity, DensityMatrix
 from qiskit.transpiler import CouplingMap
 from qvar import QVAR, QVAR_old
 import matplotlib.pyplot as plt
@@ -78,8 +79,9 @@ def test_ffqram(N):
 
 def test_noise():
 
-    N_list = [2,4,8,16,32,64]
-    trial = 10
+    N_list = [2,4,8,16]
+    trial = 5
+    seeds = 10
 
     mae_qold = []
     mae_qnew = []
@@ -93,32 +95,37 @@ def test_noise():
         q_new = []
         
         n = math.ceil(math.log2(N))
-        backend = GenericBackendV2(3*n + 2)
-        #print("Classical - QVAR_old - QVAR_new")
+        
         for i in range(trial):
             np.random.seed(123*i)
             vector = np.random.uniform(-1,1, N)
-            
-        
-            r = QuantumRegister(1, 'r') 
-            i = QuantumRegister(n, 'i')  
-        
-            U = QuantumCircuit(i, r)
-            
-            U.h(i)
-            
-            for index, val in zip(range(len(vector)), vector):
-                _register_switcher(U, index, i)
-                U.mcry(np.arcsin(val)*2, i[0:], r) 
-                _register_switcher(U, index, i)
-                       
-            q_var_old = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=backend)
-            q_var_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=backend)
             classical = np.var(vector)
-            #print(str(classical)+ " - " + str(q_var_old) + " - " + str(q_var_new))
-            q_old.append(q_var_old)
-            q_new.append(q_var_new)
             cl.append(classical)
+            
+            q_old_seed = []
+            q_new_seed = []
+            for s in range(seeds):
+
+                r = QuantumRegister(1, 'r') 
+                i = QuantumRegister(n, 'i')  
+            
+                U = QuantumCircuit(i, r)
+                
+                U.h(i)
+                
+                for index, val in zip(range(len(vector)), vector):
+                    _register_switcher(U, index, i)
+                    U.mcry(np.arcsin(val)*2, i[0:], r) 
+                    _register_switcher(U, index, i)
+
+                q_var_old = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(3*n+2, noise_info=True, seed=s*123))
+                q_var_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(2*n+2, noise_info=True, seed=s*123))
+                
+                q_old_seed.append(q_var_old)
+                q_new_seed.append(q_var_new)
+                
+            q_old.append(np.mean(q_old_seed))
+            q_new.append(np.mean(q_new_seed))
 
         mae_old = np.mean([abs(x-y) for x,y in zip(q_old, cl)])
         mae_new = np.mean([abs(x-y) for x,y in zip(q_new, cl)])
@@ -146,6 +153,77 @@ def test_noise():
     plt.legend()
     plt.savefig("MSE.png")
 
+def test_noise_density_matrix():
+
+    N_list = [16]
+    trial = 1
+    seeds = 1
+
+    mean_trials_old = []
+    mean_trials_new = []
+
+    for N in N_list:
+        print("N = " + str(N))
+        cl = []
+        q_old = []
+        q_new = []
+        
+        n = math.ceil(math.log2(N))
+        
+        for i in range(trial):
+            np.random.seed(123*i)
+            vector = np.random.uniform(-1,1, N)
+            classical = np.var(vector)
+            cl.append(classical)
+            
+            q_old_seed = []
+            q_new_seed = []
+            for s in range(seeds):
+
+                r = QuantumRegister(1, 'r') 
+                i = QuantumRegister(n, 'i')  
+            
+                U = QuantumCircuit(i, r)
+                
+                U.h(i)
+                
+                for index, val in zip(range(len(vector)), vector):
+                    _register_switcher(U, index, i)
+                    U.mcry(np.arcsin(val)*2, i[0:], r) 
+                    _register_switcher(U, index, i)
+
+                sv_old = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(3*n+2, noise_info=False, seed=s*123))
+                sv_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(2*n+2, noise_info=False, seed=s*123))
+                dm_old = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(3*n+2, noise_info=True, seed=s*123))
+                dm_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(2*n+2, noise_info=True, seed=s*123))
+                
+
+                #print("statevector\n"+str(sv_old))
+                #print("density matrix\n"+str(dm_old))
+                old_fidelity = state_fidelity(sv_old, dm_old)
+                new_fidelity = state_fidelity(sv_new, dm_new)
+
+                print("fidelity old: " + str(old_fidelity))
+                print("fidelity new: " + str(new_fidelity))
+
+                q_old_seed.append(old_fidelity)
+                q_new_seed.append(new_fidelity)
+                
+            q_old.append(np.mean(q_old_seed))
+            q_new.append(np.mean(q_new_seed))
+
+        
+        mean_trials_old.append(np.mean(q_old))
+        mean_trials_new.append(np.mean(q_new))
+        
+
+    plt.scatter(N_list, mean_trials_old, label="Fidelity old")
+    plt.scatter(N_list, mean_trials_new, label="Fidelity new")
+    plt.xticks(N_list)
+    plt.legend()
+    plt.savefig("fidelity.png")
+    
+
 if __name__ == "__main__":
 
     '''
@@ -156,4 +234,4 @@ if __name__ == "__main__":
     test_ffqram(8)
     '''
 
-    test_noise()
+    test_noise_density_matrix()

@@ -15,6 +15,7 @@ from qiskit_algorithms import AmplitudeEstimation, FasterAmplitudeEstimation
 from qiskit.primitives import Sampler
 
 from qiskit.transpiler import CouplingMap, Layout
+from qiskit.quantum_info import Statevector, state_fidelity, DensityMatrix
 
 # QVAR subroutine for computing the variance of a set of values encoded into a quantum state
 #
@@ -150,16 +151,29 @@ def QVAR_old(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_
             objective_qubits=objective_qubits,
         )
 
-        transpiled_circuit = transpile(qc, backend, optimization_level=0, coupling_map=backend.coupling_map, seed_transpiler=123)
-        transpiled_circuit.save_statevector()
-        statevector = np.asarray(backend.run(transpiled_circuit, seed_simulator=123).result().get_statevector())
-        
-        var = 0
-        for i, amplitude in enumerate(statevector):
-            full_state = bin(i)[2:].zfill(qc.num_qubits)[::-1]
-            state = ''.join([full_state[i] for i in objective_qubits])
-            if problem.is_good_state(state[::-1]):
-                var = var + np.abs(amplitude) ** 2
+        if backend._noise_info:
+            #density_matrix = DensityMatrix(qc)
+            
+            transpiled_circuit = transpile(qc, backend)
+            transpiled_circuit.save_density_matrix()
+            density_matrix = np.asarray(backend.run(transpiled_circuit).result().results[0].data.density_matrix)
+            return density_matrix
+        else:
+            #statevector = Statevector(qc)
+            
+            transpiled_circuit = transpile(qc, backend)
+            transpiled_circuit.save_statevector()
+            statevector = np.asarray(backend.run(transpiled_circuit).result().get_statevector())
+            
+            return statevector
+            '''
+            var = 0
+            for i, amplitude in enumerate(statevector):
+                full_state = bin(i)[2:].zfill(qc.num_qubits)[::-1]
+                state = ''.join([full_state[i] for i in objective_qubits])
+                if problem.is_good_state(state[::-1]):
+                    var = var + np.abs(amplitude) ** 2
+            '''
     
     tot_hadamard = 2 + i_qbits + n_h_gates
     norm_factor = 2**tot_hadamard/2**i_qbits
@@ -270,16 +284,22 @@ def QVAR(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_iter
             objective_qubits=objective_qubits,
         )
 
-        transpiled_circuit = transpile(qc, backend, optimization_level=0, coupling_map=backend.coupling_map, seed_transpiler=123)
-        transpiled_circuit.save_statevector()
-        statevector = np.asarray(backend.run(transpiled_circuit,seed_simulator=123).result().get_statevector())
+        if backend._noise_info:
+            #density_matrix = DensityMatrix(qc)
+            
+            transpiled_circuit = transpile(qc, backend)
+            transpiled_circuit.save_density_matrix()
+            density_matrix = np.asarray(backend.run(transpiled_circuit).result().results[0].data.density_matrix)
+            return density_matrix
+        else:
+            #statevector = Statevector(qc)
+            
+            transpiled_circuit = transpile(qc, backend)
+            transpiled_circuit.save_statevector()
+            statevector = np.asarray(backend.run(transpiled_circuit).result().get_statevector())
+            
+            return statevector
         
-        var = 0
-        for i, amplitude in enumerate(statevector):
-            full_state = bin(i)[2:].zfill(qc.num_qubits)[::-1]
-            state = ''.join([full_state[i] for i in objective_qubits])
-            if problem.is_good_state(state[::-1]):
-                var = var + np.abs(amplitude) ** 2
     
     tot_hadamard = 2 + n_h_gates
     norm_factor = 2**tot_hadamard/2**i_qbits
