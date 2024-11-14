@@ -8,6 +8,7 @@ from qiskit.quantum_info import Statevector, state_fidelity, DensityMatrix
 from qiskit.transpiler import CouplingMap
 from qvar import QVAR, QVAR_old
 import matplotlib.pyplot as plt
+import csv
 
 
 def _register_switcher(circuit, value, qubit_index):
@@ -79,9 +80,9 @@ def test_ffqram(N):
 
 def test_noise():
 
-    N_list = [2,4,8,16]
+    N_list = [2,4,8,16,32]
     trial = 5
-    seeds = 10
+    seeds = 5
 
     mae_qold = []
     mae_qnew = []
@@ -118,8 +119,8 @@ def test_noise():
                     U.mcry(np.arcsin(val)*2, i[0:], r) 
                     _register_switcher(U, index, i)
 
-                q_var_old = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(3*n+2, noise_info=True, seed=s*123))
-                q_var_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(2*n+2, noise_info=True, seed=s*123))
+                q_var_old = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='SHOTS', n_h_gates=n, backend=GenericBackendV2(3*n+2, noise_info=True, seed=s*123))
+                q_var_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='SHOTS', n_h_gates=n, backend=GenericBackendV2(2*n+2, noise_info=True, seed=s*123))
                 
                 q_old_seed.append(q_var_old)
                 q_new_seed.append(q_var_new)
@@ -155,12 +156,14 @@ def test_noise():
 
 def test_noise_density_matrix():
 
-    N_list = [16]
-    trial = 1
-    seeds = 1
+    N_list = [2,4,8,16,32]
+    trial = 10
+    seeds = 3
 
     mean_trials_old = []
     mean_trials_new = []
+    std_trials_old = []
+    std_trials_new = []
 
     for N in N_list:
         print("N = " + str(N))
@@ -215,14 +218,59 @@ def test_noise_density_matrix():
         
         mean_trials_old.append(np.mean(q_old))
         mean_trials_new.append(np.mean(q_new))
+        std_trials_old.append(np.std(q_old))
+        std_trials_new.append(np.std(q_new))
         
-
+    '''
     plt.scatter(N_list, mean_trials_old, label="Fidelity old")
     plt.scatter(N_list, mean_trials_new, label="Fidelity new")
     plt.xticks(N_list)
     plt.legend()
     plt.savefig("fidelity.png")
+    '''
+
+    rows = zip(N_list, mean_trials_old, std_trials_old, mean_trials_new, std_trials_new)
+
+    # Write to a CSV file
+    with open('results.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['N', 'mean_fidelity_old', 'std_trials_old', 'mean_trials_new', 'std_trials_new'])  # Write header
+        writer.writerows(rows)  # Write rows
     
+    print_result(N_list, mean_trials_old, mean_trials_new, std_trials_old, std_trials_new)
+
+def print_result(N_list, mean_trials_old, mean_trials_new, std_trials_old, std_trials_new):
+    fig, ax = plt.subplots(figsize=(10,8))
+
+    #color1 = '#f1a340'
+    #color2 = '#998ec3'
+    color1 = '#fc8d59'
+    color2 = '#91bfdb'
+    a = 0.3
+
+    plt.rcParams.update({'font.size': 22})
+    plt.tick_params(labelsize=22)
+
+    mean_trials_old = np.array(mean_trials_old)
+    mean_trials_new = np.array(mean_trials_new)
+    std_trials_old = np.array(std_trials_old)
+    std_trials_new = np.array(std_trials_new)
+
+    x = [str(n) for n in N_list]
+
+    ax.errorbar(x, mean_trials_old, yerr=std_trials_old, label='QVAR old', color=color1, ecolor=color1, capsize=10, capthick=2)
+    line_1, = plt.plot(x, mean_trials_old, color=color1, label='QVAR old')
+    fill_1 = plt.fill_between(x, mean_trials_old - std_trials_old, mean_trials_old + std_trials_old, color=color1, alpha=a)
+
+    ax.errorbar(x, mean_trials_new, yerr=std_trials_new, label='QVAR new', color=color2, ecolor=color2, capsize=10, capthick=2)
+    line_2, = plt.plot(x, mean_trials_new, color=color2, label='QVAR new')
+    fill_2 = plt.fill_between(x, mean_trials_new - std_trials_new, mean_trials_new + std_trials_new, color=color2, alpha=a)
+
+    plt.xlabel('N', fontsize=22)
+    plt.ylabel('Fidelity', fontsize=22)
+
+    plt.legend([(line_1, fill_1), (line_2, fill_2)], ['QVAR old', 'QVAR new'])
+    plt.savefig("fidelity.png")
 
 if __name__ == "__main__":
 
@@ -233,5 +281,5 @@ if __name__ == "__main__":
     print("\n FF-QRAM TEST \n")
     test_ffqram(8)
     '''
-
+    #test_noise()
     test_noise_density_matrix()
