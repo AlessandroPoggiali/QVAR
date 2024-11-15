@@ -156,7 +156,7 @@ def test_noise():
 
 def test_noise_density_matrix():
 
-    N_list = [16]
+    N_list = [32]
     trial = 10
     seeds = 3
 
