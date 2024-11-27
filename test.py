@@ -9,6 +9,7 @@ from qiskit.transpiler import CouplingMap
 from qvar import QVAR, QVAR_old
 import matplotlib.pyplot as plt
 import csv
+import pandas as pd
 
 
 def _register_switcher(circuit, value, qubit_index):
@@ -156,7 +157,7 @@ def test_noise():
 
 def test_noise_density_matrix():
 
-    N_list = [32]
+    N_list = [16]
     trial = 10
     seeds = 3
 
@@ -203,8 +204,10 @@ def test_noise_density_matrix():
 
                 #print("statevector\n"+str(sv_old))
                 #print("density matrix\n"+str(dm_old))
+                
                 old_fidelity = state_fidelity(sv_old, dm_old)
                 new_fidelity = state_fidelity(sv_new, dm_new)
+                
 
                 print("fidelity old: " + str(old_fidelity))
                 print("fidelity new: " + str(new_fidelity))
@@ -234,12 +237,18 @@ def test_noise_density_matrix():
     # Write to a CSV file
     with open('results.csv', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(['N', 'mean_fidelity_old', 'std_trials_old', 'mean_trials_new', 'std_trials_new'])  # Write header
+        writer.writerow(['N', 'mean_fidelity_old', 'std_fidelity_old', 'mean_fidelity_new', 'std_fidelity_new'])  # Write header
         writer.writerows(rows)  # Write rows
     
-    print_result(N_list, mean_trials_old, mean_trials_new, std_trials_old, std_trials_new)
 
-def print_result(N_list, mean_trials_old, mean_trials_new, std_trials_old, std_trials_new):
+def print_result():
+    df = pd.read_csv('results.csv')
+    print(df)
+    N_list = df['N']
+    mean_fidelity_old = df['mean_fidelity_old']
+    mean_fidelity_new = df['mean_fidelity_new']
+    std_fidelity_old = df['std_fidelity_old']
+    std_fidelity_new = df['std_fidelity_new']
     fig, ax = plt.subplots(figsize=(10,8))
 
     #color1 = '#f1a340'
@@ -251,20 +260,20 @@ def print_result(N_list, mean_trials_old, mean_trials_new, std_trials_old, std_t
     plt.rcParams.update({'font.size': 22})
     plt.tick_params(labelsize=22)
 
-    mean_trials_old = np.array(mean_trials_old)
-    mean_trials_new = np.array(mean_trials_new)
-    std_trials_old = np.array(std_trials_old)
-    std_trials_new = np.array(std_trials_new)
+    mean_fidelity_old = np.array(mean_fidelity_old)
+    mean_fidelity_new = np.array(mean_fidelity_new)
+    std_fidelity_old = np.array(std_fidelity_old)
+    std_fidelity_new = np.array(std_fidelity_new)
 
     x = [str(n) for n in N_list]
 
-    ax.errorbar(x, mean_trials_old, yerr=std_trials_old, label='QVAR old', color=color1, ecolor=color1, capsize=10, capthick=2)
-    line_1, = plt.plot(x, mean_trials_old, color=color1, label='QVAR old')
-    fill_1 = plt.fill_between(x, mean_trials_old - std_trials_old, mean_trials_old + std_trials_old, color=color1, alpha=a)
+    ax.errorbar(x, mean_fidelity_old, yerr=std_fidelity_old, label='QVAR old', color=color1, ecolor=color1, capsize=10, capthick=2)
+    line_1, = plt.plot(x, mean_fidelity_old, color=color1, label='QVAR old')
+    fill_1 = plt.fill_between(x, mean_fidelity_old - std_fidelity_old, mean_fidelity_old + std_fidelity_old, color=color1, alpha=a)
 
-    ax.errorbar(x, mean_trials_new, yerr=std_trials_new, label='QVAR new', color=color2, ecolor=color2, capsize=10, capthick=2)
-    line_2, = plt.plot(x, mean_trials_new, color=color2, label='QVAR new')
-    fill_2 = plt.fill_between(x, mean_trials_new - std_trials_new, mean_trials_new + std_trials_new, color=color2, alpha=a)
+    ax.errorbar(x, mean_fidelity_new, yerr=std_fidelity_new, label='QVAR new', color=color2, ecolor=color2, capsize=10, capthick=2)
+    line_2, = plt.plot(x, mean_fidelity_new, color=color2, label='QVAR new')
+    fill_2 = plt.fill_between(x, mean_fidelity_new - std_fidelity_new, mean_fidelity_new + std_fidelity_new, color=color2, alpha=a)
 
     plt.xlabel('N', fontsize=22)
     plt.ylabel('Fidelity', fontsize=22)
@@ -283,3 +292,4 @@ if __name__ == "__main__":
     '''
     #test_noise()
     test_noise_density_matrix()
+    print_result()
