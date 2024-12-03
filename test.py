@@ -81,9 +81,9 @@ def test_ffqram(N):
 
 def test_noise():
 
-    N_list = [2,4,8,16,32]
-    trial = 5
-    seeds = 5
+    N_list = [2,4,8,16]
+    trial = 10
+    seeds = 3
 
     mae_qold = []
     mae_qnew = []
@@ -120,8 +120,8 @@ def test_noise():
                     U.mcry(np.arcsin(val)*2, i[0:], r) 
                     _register_switcher(U, index, i)
 
-                q_var_old = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='SHOTS', n_h_gates=n, backend=GenericBackendV2(3*n+2, noise_info=True, seed=s*123))
-                q_var_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='SHOTS', n_h_gates=n, backend=GenericBackendV2(2*n+2, noise_info=True, seed=s*123))
+                q_var_old = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(3*n+2, noise_info=True, seed=s*123))
+                q_var_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(2*n+2, noise_info=True, seed=s*123))
                 
                 q_old_seed.append(q_var_old)
                 q_new_seed.append(q_var_new)
@@ -159,7 +159,7 @@ def test_noise_density_matrix():
 
     N_list = [16]
     trial = 10
-    seeds = 3
+    seeds = 10
 
     mean_trials_old = []
     mean_trials_new = []
@@ -196,11 +196,21 @@ def test_noise_density_matrix():
                     U.mcry(np.arcsin(val)*2, i[0:], r) 
                     _register_switcher(U, index, i)
 
+                '''
                 sv_old = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(3*n+2, noise_info=False, seed=s*123))
                 sv_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(2*n+2, noise_info=False, seed=s*123))
                 dm_old = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(3*n+2, noise_info=True, seed=s*123))
                 dm_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(2*n+2, noise_info=True, seed=s*123))
-                
+                '''
+
+                sv_old = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(3*n+2, noise_info=False, seed=s*123, calibrate_instructions = None))
+
+                sv_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(2*n+2, noise_info=False, seed=s*123, calibrate_instructions = None))
+
+                dm_old = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(3*n+2, noise_info=True, seed=s*123, calibrate_instructions = None))
+
+                dm_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(2*n+2, noise_info=True, seed=s*123, calibrate_instructions = None))
+
 
                 #print("statevector\n"+str(sv_old))
                 #print("density matrix\n"+str(dm_old))
@@ -292,4 +302,4 @@ if __name__ == "__main__":
     '''
     #test_noise()
     test_noise_density_matrix()
-    print_result()
+    #print_result()

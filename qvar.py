@@ -145,7 +145,7 @@ def QVAR_old(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_
         var = fae_result.estimation
     
     elif version == 'STATEVECTOR':
-        
+       
         problem = EstimationProblem(
             state_preparation=qc, 
             objective_qubits=objective_qubits,
@@ -278,7 +278,6 @@ def QVAR(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_iter
         var = fae_result.estimation
 
     elif version == 'STATEVECTOR':
-        
         problem = EstimationProblem(
             state_preparation=qc, 
             objective_qubits=objective_qubits,
