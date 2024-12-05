@@ -301,5 +301,5 @@ if __name__ == "__main__":
     test_ffqram(8)
     '''
     #test_noise()
-    test_noise_density_matrix()
-    #print_result()
+    #test_noise_density_matrix()
+    print_result()
