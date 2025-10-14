@@ -140,21 +140,15 @@ def QVAR(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_iter
             objective_qubits=objective_qubits,
         )
 
-        if hasattr(backend, "noise_info") and backend._noise_info:
-            #density_matrix = DensityMatrix(qc)
-            
-            transpiled_circuit = transpile(qc, backend)
-            transpiled_circuit.save_density_matrix()
-            density_matrix = np.asarray(backend.run(transpiled_circuit).result().results[0].data.density_matrix)
-            return density_matrix
-        else:
-            #statevector = Statevector(qc)
-            
-            transpiled_circuit = transpile(qc, backend)
-            transpiled_circuit.save_statevector()
-            statevector = np.asarray(backend.run(transpiled_circuit).result().get_statevector())
-            
-            return statevector
+        transpiled_circuit = transpile(qc, backend)
+        transpiled_circuit.save_statevector()
+        statevector = np.asarray(backend.run(transpiled_circuit).result().get_statevector())
+        var = 0
+        for i, amplitude in enumerate(statevector):
+            full_state = bin(i)[2:].zfill(qc.num_qubits)[::-1]
+            state = ''.join([full_state[i] for i in objective_qubits])
+            if problem.is_good_state(state[::-1]):
+                var = var + np.abs(amplitude) ** 2
         
     
     tot_hadamard = 2 + n_h_gates
