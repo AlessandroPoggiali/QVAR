@@ -335,7 +335,7 @@ def _register_switcher(circuit, value, qubit_index):
 
 
 def test():
-    N_list = [2,4,8,16,32]
+    N_list = [64]
     trial = 10
     seeds = 1
     shots_list = [100 * x for x in N_list]
@@ -594,7 +594,7 @@ def print_result(filename="results.csv"):
     plt.savefig("fidelity.png")
 
 if __name__ == "__main__":
-    #test()
+    test()
     #print_result()
-    test_gaussian()
+    #test_gaussian()
     #print_result("results_g.csv")
