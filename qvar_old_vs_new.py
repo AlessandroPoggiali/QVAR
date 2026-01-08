@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 
 from qiskit_algorithms import EstimationProblem
 from qiskit_algorithms import AmplitudeEstimation, FasterAmplitudeEstimation
-from qiskit.primitives import Sampler
 
 from qiskit.transpiler import CouplingMap, Layout
 from qiskit.quantum_info import Statevector, state_fidelity, DensityMatrix
@@ -38,7 +37,7 @@ from qiskit.quantum_info import Statevector, state_fidelity, DensityMatrix
 # postprocessing (optional) : if True, return the MLE postprocessed value (only for AE)
 # backend (optional):       : specified backend on which the simulation will be run
 
-def QVAR_old(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_iter=5, eval_qbits=5, shots=8192, n_h_gates=0, postprocessing=True, backend=None):
+def QVAR_old(U, var_index=None, ps_index=None, n_h_gates=0, postprocessing=True, backend=None):
 
     if var_index is None:
         var_index = [x for x in range(U.num_qubits)]
@@ -52,18 +51,7 @@ def QVAR_old(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_
     q = QuantumRegister(q_qbits,'q')
     u = QuantumRegister(u_qbits, 'u')
 
-    if version == 'SHOTS':
-        ca = ClassicalRegister(1,'ca')
-        cq = ClassicalRegister(q_qbits,'cq')
-        ce = ClassicalRegister(e_qbits,'ce')
-        if ps_index is not None:
-            cps = ClassicalRegister(len(ps_index), 'cps')
-            qc = QuantumCircuit(a, e, q, u, ca, cq, ce, cps)
-        else:
-            qc = QuantumCircuit(a, e, q, u, ca, cq, ce)
-    
-    else:
-        qc = QuantumCircuit(a, e, q, u)
+    qc = QuantumCircuit(a, e, q, u)
 
     #qc.append(U.to_gate(), list(range(1+e_qbits+q_qbits, qc.num_qubits)))    
     st_ff = Statevector.from_instruction(U)
@@ -91,96 +79,31 @@ def QVAR_old(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_
     else:
         objective_qubits = [x for x in range(1+e_qbits+q_qbits)]+[qc.num_qubits-u_qbits + x for x in ps_index]
     
-    if version == 'SHOTS':
-        qc.measure(a, ca) 
-        qc.measure(q, cq)
-        qc.measure(e, ce)
-        
-        if ps_index is not None:
-            qc.measure(u[ps_index], cps)
-            target_conf = '1'*len(ps_index) + ' ' + '1'*e_qbits + ' ' + '1'*q_qbits + ' 1' 
-        else:
-            target_conf = '1'*e_qbits + ' ' + '1'*q_qbits + ' 1'
-
-        counts = backend.run(transpile(qc, backend), shots=shots).result().get_counts()
-
-        try: 
-            var = (counts[target_conf])/shots
-        except:
-            var = 0
-            
-    elif version == 'AE':
-        sampler = Sampler()
-        sampler.set_options(backend=backend)
-        ae = AmplitudeEstimation(
-            num_eval_qubits=eval_qbits,  
-            sampler=sampler,
-        )
-        
-        problem = EstimationProblem(
-            state_preparation=qc, 
-            objective_qubits=objective_qubits,
-        )
-        ae_result = ae.estimate(problem)
-
-        if postprocessing:
-            var = ae_result.mle
-        else:
-            var = ae_result.estimation
-        
-    elif version == 'FAE':
-        sampler = Sampler()
-        sampler.set_options(backend=backend)
-        fae = FasterAmplitudeEstimation(
-            delta=delta, 
-            maxiter=max_iter,  
-            sampler=sampler
-        )
-
-        problem = EstimationProblem(
-            state_preparation=qc, 
-            objective_qubits=objective_qubits,
-        )
-        fae_result = fae.estimate(problem)
-        var = fae_result.estimation
     
-    elif version == 'STATEVECTOR':
-       
-        problem = EstimationProblem(
-            state_preparation=qc, 
-            objective_qubits=objective_qubits,
-        )
-
-        if backend._noise_info:
-            #density_matrix = DensityMatrix(qc)
-            
-            transpiled_circuit = transpile(qc, backend)
-            transpiled_circuit.save_density_matrix()
-            density_matrix = np.asarray(backend.run(transpiled_circuit).result().results[0].data.density_matrix)
-            return density_matrix
-        else:
-            #statevector = Statevector(qc)
-            
-            transpiled_circuit = transpile(qc, backend)
-            transpiled_circuit.save_statevector()
-            statevector = np.asarray(backend.run(transpiled_circuit).result().get_statevector())
-            
-            return statevector
-            '''
-            var = 0
-            for i, amplitude in enumerate(statevector):
-                full_state = bin(i)[2:].zfill(qc.num_qubits)[::-1]
-                state = ''.join([full_state[i] for i in objective_qubits])
-                if problem.is_good_state(state[::-1]):
-                    var = var + np.abs(amplitude) ** 2
-            '''
     
-    tot_hadamard = 2 + i_qbits + n_h_gates
-    norm_factor = 2**tot_hadamard/2**i_qbits
+    problem = EstimationProblem(
+        state_preparation=qc, 
+        objective_qubits=objective_qubits,
+    )
 
-    return var*norm_factor
+    if backend._noise_info:
+        #density_matrix = DensityMatrix(qc)
+        
+        transpiled_circuit = transpile(qc, backend)
+        transpiled_circuit.save_density_matrix()
+        density_matrix = np.asarray(backend.run(transpiled_circuit).result().results[0].data.density_matrix)
+        return density_matrix
+    else:
+        #statevector = Statevector(qc)
+        
+        transpiled_circuit = transpile(qc, backend)
+        transpiled_circuit.save_statevector()
+        statevector = np.asarray(backend.run(transpiled_circuit).result().get_statevector())
+            
+    return statevector
 
-def QVAR(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_iter=5, eval_qbits=5, shots=8192, n_h_gates=0, postprocessing=True, backend=None):
+
+def QVAR(U, var_index=None, ps_index=None, n_h_gates=0, postprocessing=True, backend=None):
 
     if var_index is None:
         var_index = [x for x in range(U.num_qubits)]
@@ -192,18 +115,7 @@ def QVAR(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_iter
     a = QuantumRegister(1,'a')
     e = QuantumRegister(e_qbits,'e')
     u = QuantumRegister(u_qbits, 'u')
-
-    if version == 'SHOTS':
-        ca = ClassicalRegister(1,'ca')
-        ce = ClassicalRegister(e_qbits,'ce')
-        if ps_index is not None:
-            cps = ClassicalRegister(len(ps_index), 'cps')
-            qc = QuantumCircuit(a, e, u, ca, ce, cps)
-        else:
-            qc = QuantumCircuit(a, e, u, ca, ce)
-    
-    else:
-        qc = QuantumCircuit(a, e, u)
+    qc = QuantumCircuit(a, e, u)
     
     #qc.append(U.to_gate(), list(range(1+e_qbits, qc.num_qubits)))       
     st_ff = Statevector.from_instruction(U)
@@ -224,83 +136,26 @@ def QVAR(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_iter
         objective_qubits = [x for x in range(1+e_qbits)]
     else:
         objective_qubits = [x for x in range(1+e_qbits)]+[qc.num_qubits-u_qbits + x for x in ps_index]
+   
+    problem = EstimationProblem(
+        state_preparation=qc, 
+        objective_qubits=objective_qubits,
+    )
 
-    if version == 'SHOTS':
-        qc.measure(a, ca) 
-        qc.measure(e, ce)
+    if backend._noise_info:
+        #density_matrix = DensityMatrix(qc)
         
-        if ps_index is not None:
-            qc.measure(u[ps_index], cps)
-            target_conf = '1'*len(ps_index) + ' ' + '1'*e_qbits + ' 1' 
-        else:
-            target_conf = '1'*e_qbits + ' 1'
-            
-        counts = backend.run(transpile(qc, backend), shots=shots).result().get_counts()
-
-        try: 
-            var = (counts[target_conf])/shots
-        except:
-            var = 0
-            
-    elif version == 'AE':
-        sampler = Sampler()
-        sampler.set_options(backend=backend)
-        ae = AmplitudeEstimation(
-            num_eval_qubits=eval_qbits,  
-            sampler=sampler
-        )
+        transpiled_circuit = transpile(qc, backend)
+        transpiled_circuit.save_density_matrix()
+        density_matrix = np.asarray(backend.run(transpiled_circuit).result().results[0].data.density_matrix)
+        return density_matrix
+    else:
+        #statevector = Statevector(qc)
         
-        problem = EstimationProblem(
-            state_preparation=qc, 
-            objective_qubits=objective_qubits,
-        )
-        ae_result = ae.estimate(problem)
-    
-        if postprocessing:
-            var = ae_result.mle
-        else:
-            var = ae_result.estimation
+        transpiled_circuit = transpile(qc, backend)
+        transpiled_circuit.save_statevector()
+        statevector = np.asarray(backend.run(transpiled_circuit).result().get_statevector())
         
-    elif version == 'FAE':
-        sampler = Sampler()
-        sampler.set_options(backend=backend)
-        fae = FasterAmplitudeEstimation(
-            delta=delta, 
-            maxiter=max_iter,  
-            sampler=sampler
-        )
-
-        problem = EstimationProblem(
-            state_preparation=qc, 
-            objective_qubits=objective_qubits,
-        )
-        fae_result = fae.estimate(problem)
-        var = fae_result.estimation
-
-    elif version == 'STATEVECTOR':
-        problem = EstimationProblem(
-            state_preparation=qc, 
-            objective_qubits=objective_qubits,
-        )
-
-        if backend._noise_info:
-            #density_matrix = DensityMatrix(qc)
-            
-            transpiled_circuit = transpile(qc, backend)
-            transpiled_circuit.save_density_matrix()
-            density_matrix = np.asarray(backend.run(transpiled_circuit).result().results[0].data.density_matrix)
-            return density_matrix
-        else:
-            #statevector = Statevector(qc)
-            
-            transpiled_circuit = transpile(qc, backend)
-            transpiled_circuit.save_statevector()
-            statevector = np.asarray(backend.run(transpiled_circuit).result().get_statevector())
-            
-            return statevector
+        return statevector
         
-    
-    tot_hadamard = 2 + n_h_gates
-    norm_factor = 2**tot_hadamard/2**i_qbits
 
-    return var*norm_factor

@@ -6,7 +6,7 @@ from qiskit_aer.noise import NoiseModel
 from qiskit_aer import AerSimulator
 from qiskit.quantum_info import Statevector, state_fidelity, DensityMatrix
 from qiskit.transpiler import CouplingMap
-from qvar_old_vs_new import QVAR, QVAR_old
+from qvar_old_vs_new_old import QVAR, QVAR_old
 import matplotlib.pyplot as plt
 import csv
 import pandas as pd
@@ -157,9 +157,9 @@ def test_noise():
 
 def test_noise_density_matrix():
 
-    N_list = [16]
-    trial = 10
-    seeds = 10
+    N_list = [2,4,8]
+    trial = 5
+    seeds = 3
 
     mean_trials_old = []
     mean_trials_new = []
@@ -301,5 +301,5 @@ if __name__ == "__main__":
     test_ffqram(8)
     '''
     #test_noise()
-    #test_noise_density_matrix()
+    test_noise_density_matrix()
     print_result()
