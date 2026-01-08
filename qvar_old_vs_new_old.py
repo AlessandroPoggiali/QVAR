@@ -438,6 +438,11 @@ def test_gaussian():
     std_trials_old = []
     std_trials_new = []
 
+    QiskitRuntimeService.save_account(
+    token="SJvwYAFb-qnoo7Mm1wJqz0qj3FbbVNeatTg6y7UmfTii",
+    instance="crn:v1:bluemix:public:quantum-computing:us-east:a/58401e948f7648d7835641fccba7ae47:f8ff6543-46a2-4c3c-9dd5-96640da29d30::",
+    overwrite=True
+    )
     service = QiskitRuntimeService()
     noisy_backend = service.backend("ibm_torino")
     noise_model = NoiseModel.from_backend(noisy_backend)
