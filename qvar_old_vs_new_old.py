@@ -117,8 +117,8 @@ def QVAR_old(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_
         qc_t = transpile(qc, backend)    
         counts = backend.run(qc_t, shots=shots).result().get_counts()
         
-        #print("depth old: " + str(qc_t.depth()))
-        #print("size_old: " + str(qc_t.size()))
+        print("depth old: " + str(qc_t.depth()))
+        print("size_old: " + str(qc_t.size()))
         #print("gate_fidelity_variance_old: " + str(backend._noise_info.gate_fidelity_variance))
         return counts
         try: 
@@ -254,8 +254,8 @@ def QVAR(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_iter
         qc_t = transpile(qc, backend)    
         counts = backend.run(qc_t, shots=shots).result().get_counts()
 
-        #print("depth_new: " + str(qc_t.depth()))
-        #print("size_new: " + str(qc_t.size()))
+        print("depth_new: " + str(qc_t.depth()))
+        print("size_new: " + str(qc_t.size()))
         #print("gate_fidelity_variance_new: " + str(backend._noise_info.gate_fidelity_variance))
         return counts
         try: 
@@ -387,8 +387,8 @@ def test():
                 dm_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='STATEVECTOR', n_h_gates=n, backend=GenericBackendV2(2*n+2, noise_info=True, seed=s*123))
                 '''
 
-                counts_old = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='SHOTS', shots=shots, n_h_gates=n, backend=AerSimulator())
-                counts_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='SHOTS', shots=shots, n_h_gates=n, backend=AerSimulator())
+                counts_old = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='SHOTS', shots=shots, n_h_gates=n, backend=noisy_simulator)
+                counts_new = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='SHOTS', shots=shots, n_h_gates=n, backend=noisy_simulator)
                 counts_old_noisy = QVAR_old(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='SHOTS', shots=shots, n_h_gates=n, backend=noisy_simulator)
                 counts_new_noisy = QVAR(U, var_index=list(range(n)), ps_index=[U.num_qubits-1], version='SHOTS', shots=shots, n_h_gates=n, backend=noisy_simulator)
 
