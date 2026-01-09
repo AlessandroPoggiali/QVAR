@@ -520,38 +520,6 @@ def test_gaussian():
         writer.writerow(['N', 'mean_fidelity_old', 'std_fidelity_old', 'mean_fidelity_new', 'std_fidelity_new'])  # Write header
         writer.writerows(rows)  # Write rows
 
-def plot_fidelity_results(csv_file="results.csv"):
-    N_list = []
-    mean_old = []
-    std_old = []
-    mean_new = []
-    std_new = []
-
-    # Read CSV
-    with open(csv_file, "r") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            N_list.append(int(row["N"]))
-            mean_old.append(float(row["mean_fidelity_old"]))
-            std_old.append(float(row["std_fidelity_old"]))
-            mean_new.append(float(row["mean_fidelity_new"]))
-            std_new.append(float(row["std_fidelity_new"]))
-
-    # Plot
-    plt.figure(figsize=(7,5))
-    plt.errorbar(N_list, mean_old, yerr=std_old, fmt='o-', label="QVAR_old", capsize=4)
-    plt.errorbar(N_list, mean_new, yerr=std_new, fmt='s-', label="QVAR", capsize=4)
-
-    plt.xlabel("Input dimension N")
-    plt.ylabel("Fidelity (noisy vs ideal)")
-    plt.title("Noise resilience comparison: QVAR vs QVAR_old")
-    plt.xticks(N_list)
-    plt.ylim(0,1.05)
-    plt.grid(True, linestyle='--', alpha=0.5)
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-
 
 def print_result(filename="results.csv"):
     df = pd.read_csv(filename)
@@ -596,5 +564,5 @@ def print_result(filename="results.csv"):
 if __name__ == "__main__":
     #test()
     #print_result()
-    test_gaussian()
-    #print_result("results_g.csv")
+    #test_gaussian()
+    print_result("results_g.csv")
