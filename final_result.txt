@@ -1,0 +1,11 @@
+Statistics for dataset: iris.csv
+==================================================
+MAE_old              | Mean:   0.0875 | Std:   0.0335
+RMSE_old             | Mean:   0.1020 | Std:   0.0391
+MRE_old              | Mean:   0.3316 | Std:   0.1415
+MAE_opt              | Mean:   0.0469 | Std:   0.0115
+RMSE_opt             | Mean:   0.0573 | Std:   0.0131
+MRE_opt              | Mean:   0.1532 | Std:   0.0313
+impr_MAE_pct         | Mean:  32.4131 | Std:  50.9856
+impr_RMSE_pct        | Mean:  27.9167 | Std:  57.9472
+impr_MRE_pct         | Mean:  41.8593 | Std:  38.4144

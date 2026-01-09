@@ -25,7 +25,7 @@ from qiskit_algorithms import AmplitudeEstimation, FasterAmplitudeEstimation
 from qiskit_ibm_runtime import Sampler
 from qiskit.transpiler import CouplingMap, Layout
 from qiskit.quantum_info import Statevector, state_fidelity, DensityMatrix
-from sklearn.datasets import load_iris, load_wine, make_moons, load_breast_cancer
+from sklearn.datasets import load_iris, load_wine, make_moons, load_breast_cancer, load_diabetes
 import os
 
 def QVAR_old(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_iter=5, eval_qbits=5, shots=8192, n_h_gates=0, postprocessing=True, backend=None):
@@ -332,6 +332,14 @@ def load_wine_dataset():
 
     return X, y 
 
+def load_diabetes_dataset():
+    data = load_diabetes()
+    X = data.data.astype(np.float32)
+    y = data.target.astype(np.float32)
+    scaler = MinMaxScaler(feature_range=(-1, 1))
+    X = scaler.fit_transform(X)
+    return X, y
+
 # -----------------------------
 # Aggregate metrics
 # -----------------------------
@@ -365,10 +373,11 @@ def test_real():
     #n_features = 5
     #X = np.random.uniform(-1,1, n_samples * n_features).reshape(n_samples, n_features) 
 
-    X, y = load_wine_dataset()
+    #X, y = load_wine_dataset()
+    X, y = load_diabetes_dataset()
     #X, y = load_breast_cancer_dataset()
     #X, y = load_iris_dataset()
-    filename = "wine.csv"
+    filename = "diabetes.csv"
     # CSV columns: trial, old MAE, old RMSE, old MRE, opt MAE, opt RMSE, opt MRE, impr_MAE, impr_RMSE, impr_MRE
     
     file_exists = os.path.exists(filename)
