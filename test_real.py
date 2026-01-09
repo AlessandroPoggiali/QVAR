@@ -374,10 +374,10 @@ def test_real():
     #X = np.random.uniform(-1,1, n_samples * n_features).reshape(n_samples, n_features) 
 
     #X, y = load_wine_dataset()
-    X, y = load_diabetes_dataset()
-    #X, y = load_breast_cancer_dataset()
+    #X, y = load_diabetes_dataset()
+    X, y = load_breast_cancer_dataset()
     #X, y = load_iris_dataset()
-    filename = "diabetes.csv"
+    filename = "breast.csv"
     # CSV columns: trial, old MAE, old RMSE, old MRE, opt MAE, opt RMSE, opt MRE, impr_MAE, impr_RMSE, impr_MRE
     
     file_exists = os.path.exists(filename)
@@ -391,7 +391,7 @@ def test_real():
                 "impr_MAE_pct", "impr_RMSE_pct", "impr_MRE_pct"
             ])
 
-    for _trial in range(n_trials):
+    for _trial in range(2, n_trials):
         print(f"\nTrial {_trial+1}/{n_trials}\n-----------------------------")
         np.random.seed(123*_trial)
 
