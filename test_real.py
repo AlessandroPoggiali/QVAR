@@ -365,10 +365,10 @@ def test_real():
     #n_features = 5
     #X = np.random.uniform(-1,1, n_samples * n_features).reshape(n_samples, n_features) 
 
-    #X, y = load_wine_dataset()
-    X, y = load_breast_cancer_dataset()
+    X, y = load_wine_dataset()
+    #X, y = load_breast_cancer_dataset()
     #X, y = load_iris_dataset()
-    filename = "breast.csv"
+    filename = "wine.csv"
     # CSV columns: trial, old MAE, old RMSE, old MRE, opt MAE, opt RMSE, opt MRE, impr_MAE, impr_RMSE, impr_MRE
     
     file_exists = os.path.exists(filename)
