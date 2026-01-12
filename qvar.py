@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 from qiskit_algorithms import EstimationProblem
 from qiskit_algorithms import AmplitudeEstimation, FasterAmplitudeEstimation
-from qiskit.primitives import Sampler
+from qiskit.primitives import StatevectorSampler as Sampler
 
 from qiskit.transpiler import CouplingMap, Layout
 from qiskit.quantum_info import Statevector, state_fidelity, DensityMatrix
@@ -101,7 +101,6 @@ def QVAR(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_iter
             
     elif version == 'AE':
         sampler = Sampler()
-        sampler.set_options(backend=backend)
         ae = AmplitudeEstimation(
             num_eval_qubits=eval_qbits,  
             sampler=sampler
@@ -120,7 +119,6 @@ def QVAR(U, var_index=None, ps_index=None, version='FAE', delta=0.0001, max_iter
         
     elif version == 'FAE':
         sampler = Sampler()
-        sampler.set_options(backend=backend)
         fae = FasterAmplitudeEstimation(
             delta=delta, 
             maxiter=max_iter,  
