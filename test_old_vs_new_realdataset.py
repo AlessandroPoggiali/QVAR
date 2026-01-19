@@ -292,8 +292,6 @@ def test_real():
         abs_err_old, rel_err_old, _ = compute_errors(var_old, var_classical)
         abs_err_opt, rel_err_opt, _ = compute_errors(var_opt, var_classical)
 
-        
-
         metrics_old = aggregate_metrics(abs_err_old, rel_err_old)
         metrics_opt = aggregate_metrics(abs_err_opt, rel_err_opt)
 
