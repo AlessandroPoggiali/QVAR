@@ -25,3 +25,53 @@ To run a simple demostration of the QVAR subroutine, follow these steps:
 
 The `test.py` file contains code that will run two demonstrations of the QVAR subroutine: the first one will compute the variance of the state vector of a random unitary, while the second one will compute the variance of a set of real values encoded through the FF-QRAM algorithm. The MSE with respect to the classical variance over 5 executions will appear on the terminal.
 
+## Citation
+
+If you use or adapt the code in this repository, please cite the following works:
+
+1. **Original version — ESANN 2023**
+
+```bibtex
+@inproceedings{poggiali2023quantum,
+  title={Quantum Feature Selection with Variance Estimation.},
+  author={Poggiali, Alessandro and Bernasconi, Anna and Berti, Alessandro and Del Corso, Gianna M and Guidotti, Riccardo and others},
+  booktitle={ESANN},
+  year={2023}
+}
+```
+
+2. **Journal version — Quantum Machine Intelligence, 2024**
+
+```bibtex
+@article{bernasconi2024quantum,
+  title={Quantum subroutine for variance estimation: algorithmic design and applications},
+  author={Bernasconi, Anna and Berti, Alessandro and Del Corso, Gianna M and Guidotti, Riccardo and Poggiali, Alessandro},
+  journal={Quantum Machine Intelligence},
+  volume={6},
+  number={2},
+  pages={78},
+  year={2024},
+  publisher={Springer}
+}
+```
+
+3. **Current circuit implementation / improved version — Quantum Machine Intelligence, 2026**
+
+```bibtex
+@article{poggiali2026more,
+  title={A more efficient quantum circuit for estimating the variance},
+  author={Poggiali, Alessandro and Ju, Jiwon},
+  journal={Quantum Machine Intelligence},
+  volume={8},
+  number={1},
+  pages={34},
+  year={2026},
+  publisher={Springer}
+}
+```
+
+The current implementation of the variance-estimation circuit corresponds to the improved circuit described in Poggiali and Ju (2026). The earlier versions and the development of the method are described in Bernasconi et al. (2024) and Poggiali et al. (2023).
+
+The code in this repository is released under the MIT License. See the `LICENSE` file for the full license text.
+
+When reusing or adapting code from this repository, please retain the copyright and license notices and cite the relevant publications above.
